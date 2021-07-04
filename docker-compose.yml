@@ -1,0 +1,49 @@
+version: "3.3"
+services:
+  #  Postgres database
+  postgres_db:
+    image: postgres:10-alpine
+    network_mode: bridge
+    container_name: postgres_db
+    #    volumes:
+    #      - postgres-data:/var/lib/postgresql/data
+    expose:
+      - 5432
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+    #      - POSTGRES_USER=postgres
+    #      - POSTGRES_DB=testdb
+    restart: unless-stopped
+  #  Java SpringBootApp
+  rest-docker-postgres:
+    image: alxlys/rest-docker-postgres:1.0
+    network_mode: bridge
+    container_name: springbootapp
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+    depends_on:
+      - postgres_db
+    links:
+      - postgres_db
+
+#  Postgres UI
+  pgAdmin4:
+    image: dpage/pgadmin4:latest
+    network_mode: bridge
+    container_name: pgAdmin4
+    expose:
+      - 80
+    ports:
+      - 80:80
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=user@domain.com
+      - PGADMIN_DEFAULT_PASSWORD=SuperSecret
+    restart: unless-stopped
+
+#volumes:
+#  postgres-data:
