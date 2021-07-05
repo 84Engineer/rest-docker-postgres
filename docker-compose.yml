@@ -1,9 +1,11 @@
-version: "3.3"
+version: "3.5"
 services:
   #  Postgres database
   postgres_db:
     image: postgres:10-alpine
-    network_mode: bridge
+    #    network_mode: bridge
+    networks:
+      - test_network
     container_name: postgres_db
     #    volumes:
     #      - postgres-data:/var/lib/postgresql/data
@@ -18,9 +20,13 @@ services:
     restart: unless-stopped
   #  Java SpringBootApp
   rest-docker-postgres:
-    image: alxlys/rest-docker-postgres:1.0
-    network_mode: bridge
-    container_name: springbootapp
+    #    image: alxlys/rest-docker-postgres:1.0
+    build:
+      context: .
+    #    network_mode: bridge
+    networks:
+      - test_network
+    container_name: rest-docker-postgres
     expose:
       - 8080
     ports:
@@ -31,10 +37,12 @@ services:
     links:
       - postgres_db
 
-#  Postgres UI
+  #  Postgres UI
   pgAdmin4:
     image: dpage/pgadmin4:latest
-    network_mode: bridge
+    #    network_mode: bridge
+    networks:
+      - test_network
     container_name: pgAdmin4
     expose:
       - 80
@@ -44,6 +52,11 @@ services:
       - PGADMIN_DEFAULT_EMAIL=user@domain.com
       - PGADMIN_DEFAULT_PASSWORD=SuperSecret
     restart: unless-stopped
+
+networks:
+  test_network:
+    driver: bridge
+
 
 #volumes:
 #  postgres-data:
